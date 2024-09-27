@@ -36,7 +36,13 @@ void SysTick_Handler(void)
 {
 	HAL_IncTick();
 }
+void EXTI0_IRQHandler(void){
 
+
+
+		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+
+	}
 /**
  * @brief  The application entry point.
  * @retval int
@@ -72,7 +78,23 @@ int main(void)
 	LCD_SetColors(LCD_COLOR_MAGENTA, LCD_COLOR_BLACK); // TextColor, BackColor
 	LCD_DisplayStringAtLineMode(39, "copyright xyz", CENTER_MODE);
 
-	int cnt = 0;
+
+
+	GPIO_InitTypeDef pin_PA0_SwitchTimer;
+	pin_PA0_SwitchTimer.Alternate = 0;
+	pin_PA0_SwitchTimer.Mode = GPIO_MODE_IT_RISING;
+	pin_PA0_SwitchTimer.Pin = GPIO_PIN_0;
+	pin_PA0_SwitchTimer.Pull = GPIO_NOPULL;
+	pin_PA0_SwitchTimer.Speed = GPIO_SPEED_FAST;
+
+	HAL_GPIO_Init(GPIOA, &pin_PA0_SwitchTimer);
+
+	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
+
+
+
+
+	int cnt=0;
 	/* Infinite loop */
 	while (1)
 	{
@@ -86,11 +108,7 @@ int main(void)
 		LCD_SetPrintPosition(5, 0);
 		printf("   Timer: %.1f", cnt/10.0);
 
-		// test touch interface
-		int x, y;
-		if (GetTouchState(&x, &y)) {
-			LCD_FillCircle(x, y, 5);
-		}
+
 
 
 	}
