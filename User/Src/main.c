@@ -4,6 +4,7 @@
  * @brief          : Main program body
  ******************************************************************************
  * Description of project
+ * By Simon Schmidtgrabner||SSCsimsi
  *
  ******************************************************************************
  */
@@ -22,9 +23,11 @@
 /* Private typedef -----------------------------------------------------------*/
 
 /* Private define ------------------------------------------------------------*/
-
+#define Colour_Amount 5
 /* Private variables ---------------------------------------------------------*/
-
+static int timer_switch=0;
+static int timer_colour_switch=0;
+static int cnt[2]={0,0};
 /* Private function prototypes -----------------------------------------------*/
 static int GetUserButtonPressed(void);
 static int GetTouchState (int *xCoord, int *yCoord);
@@ -35,14 +38,29 @@ static int GetTouchState (int *xCoord, int *yCoord);
 void SysTick_Handler(void)
 {
 	HAL_IncTick();
+	cnt[timer_switch]++;
 }
 void EXTI0_IRQHandler(void){
 
+	timer_switch=!timer_switch;
 
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
 
-		__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_0);
+}
+void EXTI3_IRQHandler(void){
 
+	timer_colour_switch++;
+
+	if(timer_colour_switch==Colour_Amount){
+		timer_colour_switch=0;
 	}
+
+
+	__HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_3);
+
+}
+
+
 /**
  * @brief  The application entry point.
  * @retval int
@@ -66,17 +84,14 @@ int main(void)
 	LCD_SetTextColor(LCD_COLOR_YELLOW);
 	LCD_SetBackColor(LCD_COLOR_BLACK);
 	LCD_SetFont(&Font20);
-	// There are 2 ways to print text to screen: using printf or LCD_* functions
-	LCD_DisplayStringAtLine(0, "    HTL Wels");
-	// printf Alternative
-	LCD_SetPrintPosition(1, 0);
-	printf(" Fischergasse 30");
-	LCD_SetPrintPosition(2, 0);
-	printf("   A-4600 Wels");
+		// printf Alternative
+
+	LCD_DisplayStringAtLineMode(1, "EXTI Interrupt", CENTER_MODE);
+
 
 	LCD_SetFont(&Font8);
 	LCD_SetColors(LCD_COLOR_MAGENTA, LCD_COLOR_BLACK); // TextColor, BackColor
-	LCD_DisplayStringAtLineMode(39, "copyright xyz", CENTER_MODE);
+	LCD_DisplayStringAtLineMode(39, "copyright SSCsimsi||Simon Schmidtgrabner", CENTER_MODE);
 
 
 
@@ -92,24 +107,34 @@ int main(void)
 	HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
 
+	GPIO_InitTypeDef pin_PG3_SwitchTimerColour;
+	pin_PG3_SwitchTimerColour.Alternate = 0;
+	pin_PG3_SwitchTimerColour.Mode = GPIO_MODE_IT_RISING;
+	pin_PG3_SwitchTimerColour.Pin = GPIO_PIN_3;
+	pin_PG3_SwitchTimerColour.Pull = GPIO_PULLUP;
+	pin_PG3_SwitchTimerColour.Speed = GPIO_SPEED_FAST;
+
+	HAL_GPIO_Init(GPIOG, &pin_PG3_SwitchTimerColour);
+
+	HAL_NVIC_EnableIRQ(EXTI3_IRQn);
 
 
-	int cnt=0;
+
+	int colour_timers[Colour_Amount]={LCD_COLOR_BLUE,LCD_COLOR_GREEN,LCD_COLOR_RED,LCD_COLOR_BLACK,LCD_COLOR_WHITE};
+
 	/* Infinite loop */
 	while (1)
 	{
-		//execute main loop every 100ms
-		HAL_Delay(100);
 
-		// display timer
-		cnt++;
 		LCD_SetFont(&Font20);
-		LCD_SetTextColor(LCD_COLOR_BLUE);
+		LCD_SetTextColor(colour_timers[timer_colour_switch]);
 		LCD_SetPrintPosition(5, 0);
-		printf("   Timer: %.1f", cnt/10.0);
+		printf("   Timer1: %.2f", cnt[0]/1000.0);
 
-
-
+		LCD_SetFont(&Font20);
+		LCD_SetTextColor(colour_timers[timer_colour_switch]);
+		LCD_SetPrintPosition(6, 0);
+		printf("   Timer2: %.2f", cnt[1]/1000.0);
 
 	}
 }
@@ -119,16 +144,18 @@ int main(void)
  * @param none
  * @return 1 if user button input (PA0) is high
  */
+/*
 static int GetUserButtonPressed(void) {
 	return (GPIOA->IDR & 0x0001);
 }
-
+*/
 /**
  * Check if touch interface has been used
  * @param xCoord x coordinate of touch event in pixels
  * @param yCoord y coordinate of touch event in pixels
  * @return 1 if touch event has been detected
  */
+/*
 static int GetTouchState (int* xCoord, int* yCoord) {
 	void    BSP_TS_GetState(TS_StateTypeDef *TsState);
 	TS_StateTypeDef TsState;
@@ -148,4 +175,5 @@ static int GetTouchState (int* xCoord, int* yCoord) {
 	return touchclick;
 }
 
+*/
 
