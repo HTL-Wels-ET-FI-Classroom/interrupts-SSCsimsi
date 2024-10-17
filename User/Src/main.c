@@ -25,12 +25,13 @@
 /* Private define ------------------------------------------------------------*/
 #define Colour_Amount 5
 /* Private variables ---------------------------------------------------------*/
-static int timer_switch=0;
-static int timer_colour_switch=0;
-static int cnt[2]={0,0};
+static volatile int timer_switch=0;
+static volatile int timer_colour_switch=0;
+static volatile int cnt[2]={0,0};
 /* Private function prototypes -----------------------------------------------*/
-static int GetUserButtonPressed(void);
-static int GetTouchState (int *xCoord, int *yCoord);
+
+//static int GetUserButtonPressed(void);
+//static int GetTouchState (int *xCoord, int *yCoord);
 
 /**
  * @brief This function handles System tick timer.
@@ -120,7 +121,7 @@ int main(void)
 
 
 
-	int colour_timers[Colour_Amount]={LCD_COLOR_BLUE,LCD_COLOR_GREEN,LCD_COLOR_RED,LCD_COLOR_BLACK,LCD_COLOR_WHITE};
+	int colour_timers[Colour_Amount]={LCD_COLOR_GREEN,LCD_COLOR_BLUE,LCD_COLOR_RED,LCD_COLOR_BLACK,LCD_COLOR_WHITE};
 
 	/* Infinite loop */
 	while (1)
@@ -129,12 +130,12 @@ int main(void)
 		LCD_SetFont(&Font20);
 		LCD_SetTextColor(colour_timers[timer_colour_switch]);
 		LCD_SetPrintPosition(5, 0);
-		printf("   Timer1: %.2f", cnt[0]/1000.0);
+		printf("Timer1: %.2f", cnt[0]/1000.0);
 
 		LCD_SetFont(&Font20);
 		LCD_SetTextColor(colour_timers[timer_colour_switch]);
 		LCD_SetPrintPosition(6, 0);
-		printf("   Timer2: %.2f", cnt[1]/1000.0);
+		printf("Timer2: %.2f", cnt[1]/1000.0);
 
 	}
 }
